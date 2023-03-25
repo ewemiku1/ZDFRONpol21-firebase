@@ -3,7 +3,7 @@ import './../styles/styles.css';
 // console.log("SIEMKA Z WEBPACK");
 
 import { initializeApp } from "firebase/app";
-import { getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6V6rhwqpyTBaLyGi1zwwpD0QifWShCB4",
@@ -152,7 +152,162 @@ setTimeout(() => {
 //     })
 // });
 
+// PĘTLA FOREACH, ZAMIAST FOR ABY WYLISTOWAĆ ELEMENTY W KONSOLI
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const Ola = document.getElementById("photoList");
+  
+//   res.items.forEach(item => {
+//     let newOla = document.createElement("li");
+//     newOla.innerText = item.name;
+//     Ola.appendChild(newOla);
+//   });
+// });
+
+// ZWYCZAJNA LISTA BEZ PRZYCISKÓW KOŁO OBRAZKÓW
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const olElement = document.getElementById("photoList");
+//   // Pobieramy getElementById - element OL
+//   for(let i = 0; i < res.items.length; i++){
+//     const liElement = document.createElement("li");
+//     // tworzymy nowy element li - createElement
+//     liElement.innerText = res.items[i].name;
+//     // w elemencie li ustawiamy tekst na nazwe pliku innerText / res.items[i].name
+//     olElement.appendChild(liElement);
+//     // li dodajemy do ol - appendChild
+//     console.log(res.items[i].name);
+//   }
+// });
 
 
+// LISTA Z PRZYCISKAMI
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const olElement = document.getElementById("photoList");
+
+//   for(let i = 0; i < res.items.length; i++){
+//     const liElement = document.createElement("li");
+//     // utwórz przycisk - createElement
+//     const myButton = document.createElement("button");
+    
+//     // dodaj tekst do przycisku - innerText
+//     myButton.innerText = "POKAŻ FOTE!";
+//     liElement.innerText = res.items[i].name;
+   
+//     // dodaj przycisk - appendChild
+//     liElement.appendChild(myButton);
+//     olElement.appendChild(liElement);
+//   }
+// });
+
+// // DODAJEMY EVENT DO PRZYCISKÓW, WYŚWIETLI SIĘ SIEMANKO JAK KLIKNIEMY PRZYCISK
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const olElement = document.getElementById("photoList");
+
+//   for(let i = 0; i < res.items.length; i++){
+//     const liElement = document.createElement("li");
+//     const myButton = document.createElement("button");
+
+//     // dodajemy event do przycisku - wyświetlamy siemanko w konsoli - addEventListener
+//     myButton.addEventListener("click", () => {
+//       console.log("SIEMANKO!");
+//     })
+
+//     myButton.innerText = "POKAŻ FOTE!";
+//     liElement.innerText = res.items[i].name;
+   
+//     liElement.appendChild(myButton);
+//     olElement.appendChild(liElement);
+//   }
+// });
+
+
+// // POKAŻE NAZWE ZDJĘCIA PO KLIKNIĘCIU
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const olElement = document.getElementById("photoList");
+
+//   for(let i = 0; i < res.items.length; i++){
+//     const liElement = document.createElement("li");
+//     const myButton = document.createElement("button");
+
+    
+//     myButton.addEventListener("click", () => {
+//       // zmiana w console.log siemanko na res.items[i].name
+//       console.log(res.items[i].name);
+//     })
+
+//     myButton.innerText = "POKAŻ FOTE!";
+//     liElement.innerText = res.items[i].name;
+   
+//     liElement.appendChild(myButton);
+//     olElement.appendChild(liElement);
+//   }
+// });
+
+// // WYŚWIETLI referencja w konsoli PO KLIKNIĘCIU
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   const olElement = document.getElementById("photoList");
+
+//   for(let i = 0; i < res.items.length; i++){
+//     const liElement = document.createElement("li");
+//     const myButton = document.createElement("button");
+//     const myRemoveBtn = document.createElement("button");
+
+    
+//     myButton.addEventListener("click", () => {
+//       // tworzymy refa do obrazka - ref + storage + nazwa_pliku
+//       // wyświetlamy tego refa
+//       const imageRef = ref(storage, res.items[i].name);
+//       // wyświetlamy URL tego imageRef - getDownloadURL(...).then(url =>)
+//       getDownloadURL(imageRef).then(url => {
+//         //Dodajemy elemnt img do HTMLa - znacznik do index.html
+//         //Pobieramy img - getElementById
+//         const myPhoto = document.getElementById("fotka");
+//         //Ustawiamy src - wlasciwosc src
+//         myPhoto.src = url;
+//         //Ustawiamy jego szerokosc
+//         myPhoto.style.width = "250px"
+//       })
+//     })
+//     // dodajemy event do przycisku usuwania
+//     myRemoveBtn.addEventListener("click", () => {
+//       const imageRef = ref(storage, res.items[i].name);
+//       deleteObject(imageRef).then( () => {
+//         console.log("USUNIĘTO!");
+//       });
+//     })
+
+//     // dodajemy kolejny przycisk, z funkcją usuwania
+//     myRemoveBtn.innerText = "USUŃ";
+//     myButton.innerText = "POKAŻ FOTE!";
+//     liElement.innerText = res.items[i].name;
+   
+    
+//     liElement.appendChild(myButton);
+//     liElement.appendChild(myRemoveBtn);
+//     olElement.appendChild(liElement);
+//   }
+// });
+
+// ZADANIE 8 - ZADANIA FIREBASE
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   res.prefixes.forEach(pref => {
+//     console.log(pref.name);
+//   })
+// })
+
+// ZAD 9
+const albumList = document.getElementById("albumsList");
 const storageRef = ref(storage);
-listAll(storageRef).then(res => console.log(res));
+listAll(storageRef).then(res => {
+  res.prefixes.forEach(pref => {
+    const albumOption = document.createElement("option");
+    albumOption.innerText = pref.name;
+    albumsList.appendChild(albumOption);
+  })
+})
