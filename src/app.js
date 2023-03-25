@@ -303,6 +303,17 @@ setTimeout(() => {
 
 // ZAD 9
 const albumList = document.getElementById("albumsList");
+const uploadPhotoBtn = document.getElementById("uploadPhoto");
+const fileInput = document.getElementById("fileInput");
+
+uploadPhotoBtn.addEventListener("click", () => {
+  if (albumsList.value) {
+    const file = fileInput.files[0];
+    const imageRef = ref(storage, `${albumsList.value}/${file.name}`);
+    uploadBytes(imageRef, file).then(() => console.log("SUKCES"));
+  }
+});
+ 
 const storageRef = ref(storage);
 listAll(storageRef).then(res => {
   res.prefixes.forEach(pref => {
@@ -310,4 +321,4 @@ listAll(storageRef).then(res => {
     albumOption.innerText = pref.name;
     albumsList.appendChild(albumOption);
   })
-})
+});
