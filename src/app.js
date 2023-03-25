@@ -339,7 +339,6 @@ showPhotosBtn.addEventListener("click", () => {
 });
 
 
-
 const storageRef = ref(storage);
 listAll(storageRef).then(res => {
   res.prefixes.forEach(pref => {
