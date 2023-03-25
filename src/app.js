@@ -305,6 +305,7 @@ setTimeout(() => {
 const albumList = document.getElementById("albumsList");
 const uploadPhotoBtn = document.getElementById("uploadPhoto");
 const fileInput = document.getElementById("fileInput");
+const showPhotosBtn = document.getElementById("showPhotos");
 
 uploadPhotoBtn.addEventListener("click", () => {
   if (albumsList.value) {
@@ -314,6 +315,31 @@ uploadPhotoBtn.addEventListener("click", () => {
   }
 });
  
+// ListaAll na referencji na album - const albumRef = ref(storage, albumsList.value)
+// wewnatrz listAll - iterujemy po items
+// dla kazdego items tworzymy referencje - const itemRef = ref(storage, items[i].name)
+// korzystamy z getDownloadUrl 
+// wewnatrz getDownloadUrl tworzymy img i dodaje src do img
+// document.body.appendChild(img);
+
+
+showPhotosBtn.addEventListener("click", () => {
+  const albumRef = ref(storage, albumList.value);
+  listAll(albumRef).then(res => {
+    res.items.forEach(item => {
+      const itemRef = ref(storage, item.fullPath);
+
+      getDownloadURL(itemRef).then(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        document.body.appendChild(img);
+      })
+    })
+  })
+});
+
+
+
 const storageRef = ref(storage);
 listAll(storageRef).then(res => {
   res.prefixes.forEach(pref => {
@@ -322,3 +348,4 @@ listAll(storageRef).then(res => {
     albumsList.appendChild(albumOption);
   })
 });
+
