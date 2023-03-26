@@ -4,6 +4,7 @@ import './../styles/styles.css';
 
 import { initializeApp } from "firebase/app";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
+import {addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6V6rhwqpyTBaLyGi1zwwpD0QifWShCB4",
@@ -17,6 +18,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+const db = getFirestore(app);
 
 // const url = "https://firebasestorage.googleapis.com/v0/b/zdfronpol21-firebase.appspot.com/o/IMG_20190519_172235.jpg?alt=media&token=1c0b8ff4-b1e6-48ca-b4f7-716a2c856677"
 
@@ -302,18 +304,18 @@ setTimeout(() => {
 // })
 
 // ZAD 9
-const albumList = document.getElementById("albumsList");
-const uploadPhotoBtn = document.getElementById("uploadPhoto");
-const fileInput = document.getElementById("fileInput");
-const showPhotosBtn = document.getElementById("showPhotos");
+// const albumList = document.getElementById("albumsList");
+// const uploadPhotoBtn = document.getElementById("uploadPhoto");
+// const fileInput = document.getElementById("fileInput");
+// const showPhotosBtn = document.getElementById("showPhotos");
 
-uploadPhotoBtn.addEventListener("click", () => {
-  if (albumsList.value) {
-    const file = fileInput.files[0];
-    const imageRef = ref(storage, `${albumsList.value}/${file.name}`);
-    uploadBytes(imageRef, file).then(() => console.log("SUKCES"));
-  }
-});
+// uploadPhotoBtn.addEventListener("click", () => {
+//   if (albumsList.value) {
+//     const file = fileInput.files[0];
+//     const imageRef = ref(storage, `${albumsList.value}/${file.name}`);
+//     uploadBytes(imageRef, file).then(() => console.log("SUKCES"));
+//   }
+// });
  
 // ListaAll na referencji na album - const albumRef = ref(storage, albumsList.value)
 // wewnatrz listAll - iterujemy po items
@@ -323,28 +325,133 @@ uploadPhotoBtn.addEventListener("click", () => {
 // document.body.appendChild(img);
 
 
-showPhotosBtn.addEventListener("click", () => {
-  const albumRef = ref(storage, albumList.value);
-  listAll(albumRef).then(res => {
-    res.items.forEach(item => {
-      const itemRef = ref(storage, item.fullPath);
+// showPhotosBtn.addEventListener("click", () => {
+//   const albumRef = ref(storage, albumList.value);
+//   listAll(albumRef).then(res => {
+//     res.items.forEach(item => {
+//       const itemRef = ref(storage, item.fullPath);
 
-      getDownloadURL(itemRef).then(url => {
-        const img = document.createElement("img");
-        img.src = url;
-        document.body.appendChild(img);
-      })
+//       getDownloadURL(itemRef).then(url => {
+//         const img = document.createElement("img");
+//         img.src = url;
+//         document.body.appendChild(img);
+//       })
+//     })
+//   })
+// });
+
+
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   res.prefixes.forEach(pref => {
+//     const albumOption = document.createElement("option");
+//     albumOption.innerText = pref.name;
+//     albumsList.appendChild(albumOption);
+//   })
+// });
+
+
+
+// const jkDoc = doc(db, "users", "JanKowalskiId");
+// setDoc(jkDoc, {
+//   name: "Jan",
+//   surname: "Kowalski"
+// });
+
+// FIRESTORE - ZADANIE 1
+
+// const nameInput = document.getElementById("userName");
+// const surnameInput = document.getElementById("userSurname");
+// const ageInput = document.getElementById("userAge");
+// const addUserBtn = document.getElementById("addUser");
+
+// addUserBtn.addEventListener("click", () => {
+//   const jkDoc = doc(db, "users", `${nameInput.value}${surnameInput.value}${ageInput.value}`);
+//   setDoc(jkDoc, {
+//     name: nameInput.value,
+//     surname: surnameInput.value,
+//     age: ageInput.value
+//   }).then(() => console.log("SUKCES!")) //jezeli w funkcji jest jedno wyrażenie, nie trzeba dawac tych nawiasów {}
+// });
+
+// const eweDoc = doc(db, "users", "AnnaKowalska33");
+// getDoc(eweDoc).then(resDoc => {
+//   const ewe = resDoc.data();
+//   nameInput.value = ewe.name;
+//   surnameInput.value = ewe.surname;
+//   ageInput.value = ewe.age;
+// })
+
+
+// KOLEJNE ZADANIE - rozwiązanie poniżej pozaznaczane poszczegolnymi punktami
+// Pobieranie OL za pomoca getElementById
+// Utworzenie referencji do kolekcji userow - collection
+// Wykorzystanie getDocs
+// Iteracja po docsach
+// Wewnatrz petli tworzymy LI
+// Uzupelniamy innerText w LI - imie i nazwisko (pamietac o data())
+// Dodajemy LI do OL - appendChild
+
+const nameInput = document.getElementById("userName");
+const surnameInput = document.getElementById("userSurname");
+const ageInput = document.getElementById("userAge");
+const addUserBtn = document.getElementById("addUser");
+const userList = document.getElementById("usersList"); // Pobieranie OL za pomoca getElementById
+const usersCollection = collection(db, "users"); // Utworzenie referencji do kolekcji userow - collection
+const editUserBtn = document.getElementById("editUser");
+const userIdheader = document.getElementById("userId");
+
+addUserBtn.addEventListener("click", () => {
+  addDoc(usersCollection, {
+    name: nameInput.value,
+    surname: surnameInput.value,
+    age: ageInput.value
+  })
+});
+
+getDocs(usersCollection).then(docs => { // Wykorzystanie getDocs
+  docs.forEach(myDoc => { // Iteracja po docsach
+    const editBtn = document.createElement("button");
+    const myLi = document.createElement("li"); // Wewnatrz petli tworzymy LI
+    
+    const myUser = myDoc.data();
+    
+    myLi.innerText = `${myUser.name} ${myUser.surname} ${myUser.age}`; // Uzupelniamy innerText w LI - imie i nazwisko (pamietac o data())
+    editBtn.innerText = "Edit";
+
+    editBtn.addEventListener("click", () => {
+      nameInput.value = myUser.name;
+      surnameInput.value = myUser.surname;
+      ageInput.value = myUser.age;
+      addUserBtn.style.display = "none";
+      editUserBtn.style.display = "inline-block";
+      userIdheader.innerText = myDoc.id;
     })
+    
+    myLi.appendChild(editBtn);
+    userList.appendChild(myLi); // Dodajemy LI do OL - appendChild
   })
 });
 
 
-const storageRef = ref(storage);
-listAll(storageRef).then(res => {
-  res.prefixes.forEach(pref => {
-    const albumOption = document.createElement("option");
-    albumOption.innerText = pref.name;
-    albumsList.appendChild(albumOption);
+
+editUserBtn.addEventListener("click", () => {
+  const userDoc = doc(db, "users", userIdheader.innerText);
+  updateDoc(userDoc, {
+    name: nameInput.value,
+    surname: surnameInput.value,
+    age: ageInput.value
+  }).then(() => {
+    userIdheader.innerText = "";
+    nameInput.value = "";
+    surnameInput.value = "";
+    ageInput.value = "";
+    addUserBtn.style.display = "inline-block";
+    editUserBtn.style.display = "none";
   })
 });
 
+
+
+// ZAD DOM
+// co można zrobic żeby nie odświeżać ręcznie, żeby była automatyczna aktualizacja
