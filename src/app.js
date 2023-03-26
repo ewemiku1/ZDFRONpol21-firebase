@@ -5,7 +5,9 @@ import './../styles/styles.css';
 import { initializeApp } from "firebase/app";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
-import { getDatabase, ref as rdbRef, set } from "firebase/database";
+import { getDatabase, onChildAdded, onValue, push, ref as rdbRef, set } from "firebase/database";
+import { getAuth, EmailAuthProvider, onAuthStateChanged, GoogleAuthProvider, signOut } from "firebase/auth";
+import * as firebaseui from 'firebaseui';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6V6rhwqpyTBaLyGi1zwwpD0QifWShCB4",
@@ -22,6 +24,9 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const db = getFirestore(app);
 const rdb = getDatabase(app); // rdb - realtime database
+
+const auth = getAuth(app);
+const ui = new firebaseui.auth.AuthUI(auth);
 
 // const url = "https://firebasestorage.googleapis.com/v0/b/zdfronpol21-firebase.appspot.com/o/IMG_20190519_172235.jpg?alt=media&token=1c0b8ff4-b1e6-48ca-b4f7-716a2c856677"
 
@@ -510,8 +515,77 @@ setTimeout(() => {
 // }
 // });
 
-const janRef = rdbRef(rdb, "users/JanId");
-set(janRef, {
-  name: "Jan",
-  surname: "Kowalski"
+// const janRef = rdbRef(rdb, "users/JanId");
+// set(janRef, {
+//   name: "Jan",
+//   surname: "Kowalski"
+// })
+
+// const usersRef = rdbRef(rdb, "users");
+// const janRef = push(usersRef);
+
+// set(janRef, {
+//   name: "NowyJan",
+//   surname: "NowyKowalski"
+// })
+
+// const usersRef = rdbRef(rdb, "users");
+// onValue(usersRef, snapshot => {
+//   console.log(snapshot);
+//   const myUsers = snapshot.val();
+
+//   for(let prop in myUsers){
+//     console.log(prop);
+//   }
+// })
+
+const sendBtn = document.getElementById("send");
+const messageTextInput = document.getElementById("message");
+const messageContainer = document.getElementById("messageContainer");
+const signOutBtn = document.getElementById("signOut");
+
+const messagesRef = rdbRef(rdb, "messages");
+
+signOutBtn.addEventListener("click", () => {
+  signOut(auth);
 })
+
+onChildAdded(messagesRef, (messageSnapshot) => {
+  const mySpan = document.createElement("span");
+  const message = messageSnapshot.val();
+
+  mySpan.innerText = `${message.timestamp} --- ${message.text}`;
+
+  messageContainer.appendChild(mySpan);
+})
+
+sendBtn.addEventListener("click", () => {
+  const messageRef = push(messagesRef);
+
+  set(messageRef, {
+    text: messageTextInput.value,
+    timestamp: new Date().toISOString()
+  })
+})
+
+// NORMALNIE POWINNO BYC TO NA GÓRZE
+ui.start('#firebaseui-auth-container', {
+  signInOptions: [
+      EmailAuthProvider.PROVIDER_ID,
+      GoogleAuthProvider.PROVIDER_ID  
+  ],
+  // signInSuccessUrl: "http://localhost:8080/"
+  signInSuccessUrl: "https://zdfronpol21-firebase.web.app/"
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    sendBtn.style.display = "inline-block";
+    messageContainer.style.display = "flex";
+    messageTextInput.style.display = "block";
+  } else {
+    sendBtn.style.display = "none";
+    messageContainer.style.display = "none";
+    messageTextInput.style.display = "none";
+  }
+});
