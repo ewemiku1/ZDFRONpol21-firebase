@@ -4,12 +4,14 @@ import './../styles/styles.css';
 
 import { initializeApp } from "firebase/app";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
-import {addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc} from "firebase/firestore";
+import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
+import { getDatabase, ref as rdbRef, set } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6V6rhwqpyTBaLyGi1zwwpD0QifWShCB4",
   authDomain: "zdfronpol21-firebase.firebaseapp.com",
   projectId: "zdfronpol21-firebase",
+  databaseURL: "https://zdfronpol21-firebase-default-rtdb.europe-west1.firebasedatabase.app",
   storageBucket: "zdfronpol21-firebase.appspot.com",
   messagingSenderId: "171314720947",
   appId: "1:171314720947:web:738a1ed6417e3e10de40c6"
@@ -19,6 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const db = getFirestore(app);
+const rdb = getDatabase(app); // rdb - realtime database
 
 // const url = "https://firebasestorage.googleapis.com/v0/b/zdfronpol21-firebase.appspot.com/o/IMG_20190519_172235.jpg?alt=media&token=1c0b8ff4-b1e6-48ca-b4f7-716a2c856677"
 
@@ -392,66 +395,123 @@ setTimeout(() => {
 // Uzupelniamy innerText w LI - imie i nazwisko (pamietac o data())
 // Dodajemy LI do OL - appendChild
 
-const nameInput = document.getElementById("userName");
-const surnameInput = document.getElementById("userSurname");
-const ageInput = document.getElementById("userAge");
-const addUserBtn = document.getElementById("addUser");
-const userList = document.getElementById("usersList"); // Pobieranie OL za pomoca getElementById
-const usersCollection = collection(db, "users"); // Utworzenie referencji do kolekcji userow - collection
-const editUserBtn = document.getElementById("editUser");
-const userIdheader = document.getElementById("userId");
+// const nameInput = document.getElementById("userName");
+// const surnameInput = document.getElementById("userSurname");
+// const ageInput = document.getElementById("userAge");
+// const addUserBtn = document.getElementById("addUser");
+// const userList = document.getElementById("usersList"); // Pobieranie OL za pomoca getElementById
+// const usersCollection = collection(db, "users"); // Utworzenie referencji do kolekcji userow - collection
+// const editUserBtn = document.getElementById("editUser");
+// const userIdheader = document.getElementById("userId");
 
-addUserBtn.addEventListener("click", () => {
-  addDoc(usersCollection, {
-    name: nameInput.value,
-    surname: surnameInput.value,
-    age: ageInput.value
-  })
-});
+// addUserBtn.addEventListener("click", () => {
+//   addDoc(usersCollection, {
+//     name: nameInput.value,
+//     surname: surnameInput.value,
+//     age: ageInput.value
+//   }).then(() => {
+//     generateUsersList();
+//   });
+// });
 
-getDocs(usersCollection).then(docs => { // Wykorzystanie getDocs
-  docs.forEach(myDoc => { // Iteracja po docsach
-    const editBtn = document.createElement("button");
-    const myLi = document.createElement("li"); // Wewnatrz petli tworzymy LI
-    
-    const myUser = myDoc.data();
-    
-    myLi.innerText = `${myUser.name} ${myUser.surname} ${myUser.age}`; // Uzupelniamy innerText w LI - imie i nazwisko (pamietac o data())
-    editBtn.innerText = "Edit";
-
-    editBtn.addEventListener("click", () => {
-      nameInput.value = myUser.name;
-      surnameInput.value = myUser.surname;
-      ageInput.value = myUser.age;
-      addUserBtn.style.display = "none";
-      editUserBtn.style.display = "inline-block";
-      userIdheader.innerText = myDoc.id;
-    })
-    
-    myLi.appendChild(editBtn);
-    userList.appendChild(myLi); // Dodajemy LI do OL - appendChild
-  })
-});
+// function generateUsersList() {
+//   getDocs(usersCollection).then(docs => { // Wykorzystanie getDocs
+//     userList.innerHTML = "";
+//     docs.forEach(myDoc => { // Iteracja po docsach
+//       const editBtn = document.createElement("button");
+//       const deleteBtn = document.createElement("button");
+//       const myLi = document.createElement("li"); // Wewnatrz petli tworzymy LI
+      
+//       const myUser = myDoc.data();
+      
+//       myLi.innerText = `${myUser.name} ${myUser.surname} ${myUser.age}`; // Uzupelniamy innerText w LI - imie i nazwisko (pamietac o data())
+//       editBtn.innerText = "Edit";
+//       deleteBtn.innerText = "Delete";
 
 
+//       editBtn.addEventListener("click", () => {
+//         nameInput.value = myUser.name;
+//         surnameInput.value = myUser.surname;
+//         ageInput.value = myUser.age;
+//         addUserBtn.style.display = "none";
+//         editUserBtn.style.display = "inline-block";
+//         userIdheader.innerText = myDoc.id;
+//       })
+      
+//       // FUNKCJA deleteDoc
+//       deleteBtn.addEventListener("click", () => {
+//         const userDocRef = doc(db, "users", myDoc.id);
+//         deleteDoc(userDocRef).then(() => {
+//           console.log("usunięto!!");
+//           generateUsersList();
+//         });
+//       })
 
-editUserBtn.addEventListener("click", () => {
-  const userDoc = doc(db, "users", userIdheader.innerText);
-  updateDoc(userDoc, {
-    name: nameInput.value,
-    surname: surnameInput.value,
-    age: ageInput.value
-  }).then(() => {
-    userIdheader.innerText = "";
-    nameInput.value = "";
-    surnameInput.value = "";
-    ageInput.value = "";
-    addUserBtn.style.display = "inline-block";
-    editUserBtn.style.display = "none";
-  })
-});
+
+//       myLi.appendChild(editBtn);
+//       myLi.appendChild(deleteBtn);
+//       userList.appendChild(myLi); // Dodajemy LI do OL - appendChild
+//     })
+//   });
+// };
+
+// generateUsersList();
 
 
+// editUserBtn.addEventListener("click", () => {
+//   const userDoc = doc(db, "users", userIdheader.innerText);
+//   updateDoc(userDoc, {
+//     name: nameInput.value,
+//     surname: surnameInput.value,
+//     age: ageInput.value
+//   }).then(() => {
+//     userIdheader.innerText = "";
+//     nameInput.value = "";
+//     surnameInput.value = "";
+//     ageInput.value = "";
+//     addUserBtn.style.display = "inline-block";
+//     editUserBtn.style.display = "none";
+//     generateUsersList();
+//   })
+// });
 
 // ZAD DOM
 // co można zrobic żeby nie odświeżać ręcznie, żeby była automatyczna aktualizacja
+
+
+// ZADANIE: Utwórz aplikację, która szuka użytkowników w bazie danych na podstawie
+// wprowadzonego imienia. Użytkownicy spełniający kryteria wyszukiwania
+// wyświetlają się w liście
+
+// const nameInput = document.getElementById("name");
+// const searchBtn = document.getElementById("search");
+// const usersList = document.getElementById("usersList");
+
+// // SZUKANIE PRZYCISKIEM
+// // searchBtn.addEventListener("click", () => {
+// //   const users = collection(db, "users");
+// //   const usersQuery = query(users, where("name", "==", nameImput.value ));
+
+// // SZUKANIE ENTEREM
+// nameInput.addEventListener("keydown", (event) => {
+//   if (event.key === "Enter") {
+//     const users = collection(db, "users");
+//     const usersQuery = query(users, where("name", "==", nameInput.value));
+
+//   getDocs(usersQuery).then(docs => {
+//     usersList.innerHTML = "";
+//     docs.forEach(myDoc => {
+//       const myUser = myDoc.data();
+//       const myLi = document.createElement("li");
+//       myLi.innerText = `${myUser.name} ${myUser.surname} ${myUser.age}`;
+//       usersList.appendChild(myLi);
+//     });
+//   });
+// }
+// });
+
+const janRef = rdbRef(rdb, "users/JanId");
+set(janRef, {
+  name: "Jan",
+  surname: "Kowalski"
+})
